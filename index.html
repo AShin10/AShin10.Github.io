@@ -71,6 +71,132 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-应急响应/Linux排查" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" class="article-date">
+  <time class="dt-published" datetime="2022-09-03T15:11:50.996Z" itemprop="datePublished">2022-09-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/">Linux系统排查</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="系统排查"><a href="#系统排查" class="headerlink" title="系统排查"></a>系统排查</h1><p>​	对于Linux系统的主机排查，可以使用相关命令查看CPU信息、操作系统信息及模块信息等，初步了解主机情况。</p>
+<p>（1）CPU信息</p>
+<p>​	在命令行中输入【lscpu】命令，可查看CPU相关信息，包括型号、主频、内核等信息。</p>
+<p>（2）操作系统信息</p>
+<p>​	在命令行中输入【uname -a】命令，可查看当前操作系统信息。</p>
+<p>​	在命令行中输入【cat &#x2F;proc&#x2F;version】命令，可查看当前操作系统版本信息。</p>
+<p>（3）模块信息</p>
+<p>​	在命令行中输入【lsmod】命令，可查看所有已载入系统的模块信息。</p>
+<h1 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h1><p>​	对于Windows系统中的恶意账户排查，主要有4种方法</p>
+<p>（1）查看系统所有用户信息</p>
+<p>​	查看系统所有用户信息可以在命令行中输入【cat &#x2F;etc&#x2F;passwd】命令，后续各项由冒号隔开，分别表示“用户名”“密码加密”“用户ID”“用户组ID”“注释”“用户主目录”“默认登陆shell”。查询的用户信息中，最后显示“bin&#x2F;bash”的，表示账户状态为可登录；显示“sbin&#x2F;nologin”的，表示账户状态为不可登录。</p>
+<p>（2）分析超级权限账户</p>
+<p>​	在命令行中输入【awk -F:’{if($3&#x3D;&#x3D;0)print$1}’ etc&#x2F;passwd】命令，可查询可登录账户UID为0的账户。root是UID为0的可登录账户，如果出现其他为0的账户，就要重点排查。</p>
+<p>（3）查看可登录的账户</p>
+<p>​	在命令行中输入【cat &#x2F;etc&#x2F;passwd | grep ‘&#x2F;bin&#x2F;bash’】命令，可查看可登录的账户。</p>
+<p>（4）查看用户错误的登录信息</p>
+<p>​	在命令行中输入【lastb】命令，可查看显示用户错误的登录列表，包括错误的登录方法、IP地址、时间等。</p>
+<p>（5）查看所有用户最后的登录信息</p>
+<p>​	在命令行中输入【lastlog】命令，可查看系统中所有用户最后的登录信息。</p>
+<p>（6）查看用户最近登录信息</p>
+<p>​	在命令行中输入【last】命令，可查看用户最近登录信息。</p>
+<p>​	在命令行中输入【last -f &#x2F;var&#x2F;log&#x2F;btmp】命令，可查看用户最近登录失败的信息。</p>
+<p>​	在命令行中输入【last -f &#x2F;var&#x2F;log&#x2F;utmp】命令，可查看用户当前正在登录的信息。</p>
+<p>​	在命令行中输入【last -f &#x2F;var&#x2F;log&#x2F;wtmp】命令，可查看用户最近登录成功的信息。</p>
+<p>（7）查看当前用户登录系统情况</p>
+<p>​	在命令行中输入【who】命令，可查看当前用户登录系统情况。</p>
+<p>（8）查看空口令账户</p>
+<p>​	在命令行中输入【awk -F:’length($2)&#x3D;&#x3D;0 {print $1}’ &#x2F;etc&#x2F;shadow】命令，可查看是否存在空口令账户。</p>
+<h1 id="启动项"><a href="#启动项" class="headerlink" title="启动项"></a>启动项</h1>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7m4zk770003i0vn354rc6ar" data-title="Linux系统排查" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-应急响应/Windows排查" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" class="article-date">
+  <time class="dt-published" datetime="2022-09-03T14:27:47.735Z" itemprop="datePublished">2022-09-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/">Windows系统排查</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="系统排查"><a href="#系统排查" class="headerlink" title="系统排查"></a>系统排查</h1><h2 id="一、系统信息工具"><a href="#一、系统信息工具" class="headerlink" title="一、系统信息工具"></a>一、系统信息工具</h2><p>​	在命令行中输入【msinfo32】命令，打开【系统信息窗口】，可以显示对本地计算机的硬件资源、组件和软件环境的信息，对正在运行的任务、服务、系统驱动程序、加载的模块、启动程序等进行排查。</p>
+<p>（1）正在运行任务</p>
+<p>​	在【系统信息窗口中】，单击【软件环境】中的【正在运行任务】选项，可查看正在运行任务的名称、路径、进程ID等详细信息。</p>
+<p>（2）服务</p>
+<p>​	在【系统信息窗口中】，单击【软件环境】中的【服务】选项，可查看服务的名称、状态、路径等详细信息。</p>
+<p>（3）系统驱动程序</p>
+<p>​	在【系统信息窗口中】，单击【软件环境】中的【系统驱动程序】选项，可查看系统驱动程序的名称、描述、文件等详细信息。</p>
+<p>（4）加载的模块</p>
+<p>​	在【系统信息窗口中】，单击【软件环境】中的【加载的模块】选项，可查看加载的模块的名称、路径等详细信息。</p>
+<h2 id="二、简单了解系统信息"><a href="#二、简单了解系统信息" class="headerlink" title="二、简单了解系统信息"></a>二、简单了解系统信息</h2><p>​	如果只想简单了解系统的信息，可以在命令行中输入【systeminfo】命令实现。</p>
+<h1 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h1><p>​	对于Windows系统中的恶意账户排查，主要有4种方法</p>
+<p>（1）命令行方法</p>
+<p>​	在命令行中输入【net user】命令，可以直接收集用户账户信息(此方法看不到以$结尾的隐藏账户),若需要查看某个账户的详细信息，可在命令行中输入【net user xxx】命令（xxx为具体的用户名）。</p>
+<p>（2）图形界面方法</p>
+<p>​	打开【计算机管理】窗口，单击【本地用户和组】中的用户选项，可查看隐藏用户，名称为$结尾的为隐藏用户。</p>
+<p>​	也可以在命令行中输入【lusrmgr.msc】命令，直接打开图形界面，查看是否有新增&#x2F;可以的账户。</p>
+<p>（3）注册表方法</p>
+<p>​	打开【注册表编辑器】窗口，选择【HKEY_LOCAL_MACHINE】下的【SAM】选项，为该项添加【允许父项的继承权限传播到该对象和所有子对象。包括那些在此明确定义的项目】和【用在此显示的可以应用到子对象的项目替代所有子对象的权限项目】权限，使当前用户拥有SAM的读取权限。</p>
+<p>​	添加权限完成后按【F5】键，刷新后即可访问子项并查看用户信息。</p>
+<p>​	同时，在此项下导出所有以00000开头的项，将所有导出的项与对应的Administrator导出内容作比较，若其中F值相同，则表示可能为克隆账户。</p>
+<p>（4）wmic方法</p>
+<p>​	wmic扩展WNI提供从命令行接口和批命令脚本执行系统管理支持。在命令行中输入【wmic useraccount get name,SID】命令，可以查看系统中的用户信息。</p>
+<h1 id="启动项"><a href="#启动项" class="headerlink" title="启动项"></a>启动项</h1>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" data-id="cl7m4zk7a0004i0vnakbn2fui" data-title="Windows系统排查" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/09/03/hello-world/" class="article-date">
@@ -110,7 +236,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/hello-world/" data-id="cl7lzzooi0001o8vn4bu61oni" data-title="Hello World" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/hello-world/" data-id="cl7m4zk720001i0vn1mb4bd3a" data-title="Hello World" class="article-share-link">Share</a>
       
       
       
@@ -152,7 +278,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2017/05/05/Untitled/" data-id="cl7lzzoob0000o8vneg4m9qs3" data-title="测试" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2017/05/05/Untitled/" data-id="cl7m4zk6u0000i0vn5kz213wp" data-title="测试" class="article-share-link">Share</a>
       
       
       
@@ -209,6 +335,14 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/">Linux系统排查</a>
+          </li>
+        
+          <li>
+            <a href="/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/">Windows系统排查</a>
+          </li>
         
           <li>
             <a href="/2022/09/03/hello-world/">Hello World</a>
