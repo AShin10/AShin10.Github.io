@@ -14,7 +14,7 @@
 <meta property="og:description" content="系统排查​	对于Linux系统的主机排查，可以使用相关命令查看CPU信息、操作系统信息及模块信息等，初步了解主机情况。 （1）CPU信息 ​	在命令行中输入【lscpu】命令，可查看CPU相关信息，包括型号、主频、内核等信息。 （2）操作系统信息 ​	在命令行中输入【uname -a】命令，可查看当前操作系统信息。 ​	在命令行中输入【cat &#x2F;proc&#x2F;version】命令，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-09-03T15:11:50.996Z">
-<meta property="article:modified_time" content="2022-09-04T14:37:48.428Z">
+<meta property="article:modified_time" content="2022-09-05T15:04:21.792Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -103,7 +103,7 @@
 <p>​	在命令行中输入【cat &#x2F;proc&#x2F;version】命令，可查看当前操作系统版本信息。</p>
 <p>（3）模块信息</p>
 <p>​	在命令行中输入【lsmod】命令，可查看所有已载入系统的模块信息。</p>
-<h1 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h1><p>​	对于Windows系统中的恶意账户排查，主要有4种方法</p>
+<h3 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h3><p>​	对于Windows系统中的恶意账户排查，主要有4种方法</p>
 <p>（1）查看系统所有用户信息</p>
 <p>​	查看系统所有用户信息可以在命令行中输入【cat &#x2F;etc&#x2F;passwd】命令，后续各项由冒号隔开，分别表示“用户名”“密码加密”“用户ID”“用户组ID”“注释”“用户主目录”“默认登陆shell”。查询的用户信息中，最后显示“bin&#x2F;bash”的，表示账户状态为可登录；显示“sbin&#x2F;nologin”的，表示账户状态为不可登录。</p>
 <p>（2）分析超级权限账户</p>
@@ -123,18 +123,23 @@
 <p>​	在命令行中输入【who】命令，可查看当前用户登录系统情况。</p>
 <p>（8）查看空口令账户</p>
 <p>​	在命令行中输入【awk -F:’length($2)&#x3D;&#x3D;0 {print $1}’ &#x2F;etc&#x2F;shadow】命令，可查看是否存在空口令账户。</p>
-<h1 id="启动项"><a href="#启动项" class="headerlink" title="启动项"></a>启动项</h1><p>​	启动项是恶意病毒实现持久化驻留的一种常用手段，使用以下方法可以查找启动项相关内容。</p>
+<h3 id="启动项"><a href="#启动项" class="headerlink" title="启动项"></a>启动项</h3><p>​	启动项是恶意病毒实现持久化驻留的一种常用手段，使用以下方法可以查找启动项相关内容。</p>
 <p>​	使用【cat &#x2F;etc&#x2F;init.d&#x2F;rc.local】命令，可查看init.d文件夹下的rc.local文件内容。</p>
 <p>​	使用【cat &#x2F;etc&#x2F;rc.local】命令，可查看rc.local文件内容。</p>
 <p>​	使用【ls -alt &#x2F;etc&#x2F;init.d】命令，可查看init.d文件夹下所有文件的详细信息。</p>
-<h1 id="任务计划"><a href="#任务计划" class="headerlink" title="任务计划"></a>任务计划</h1><p>​	在Linux系统中，任务计划也是维持权限和远程下载恶意软件的一种手段。一般有以下两种方法可以查看任务计划。</p>
+<h3 id="任务计划"><a href="#任务计划" class="headerlink" title="任务计划"></a>任务计划</h3><p>​	在Linux系统中，任务计划也是维持权限和远程下载恶意软件的一种手段。一般有以下两种方法可以查看任务计划。</p>
 <p>（1）在命令行中输入【crontab -l】命令，可查看当前的任务计划，也可以指定用户进行查看，如输入命令【crontab -u root -l】,可查看root用户的任务计划，以确认是否有后门木马程序启动相关信息。</p>
 <p>（2）查看etc目录下的任务计划文件。一般在Linux系统中的任务计划文件是以cron开头的，可以利用正则表达式的*筛选出etc目录下的所有以cron开头的文件，例如，查看etc目录下的所有任务计划文件就可以输入【ls &#x2F;etc&#x2F;cron *】命令。</p>
-
+<h1 id="进程排查"><a href="#进程排查" class="headerlink" title="进程排查"></a>进程排查</h1><p>​	Linux系统中在命令行中输入【netstat】网络连接命令，可分析可以端口、可疑IP地址、可疑PID及程序进程。</p>
+<p>​	根据PID的值，利用【ls -alt &#x2F;proc&#x2F;xxx】（xxx为进程的PID）命令，可查看其对应的可执行程序。</p>
+<p>​	也可以利用【lsof -p xxx】（xxx为进程的PID）命令，查看进程所打开的文件。</p>
+<p>​	有些攻击者会将进程隐藏，以躲避排查，因此查看隐藏进程同样重要。按顺序执行【ps -ef |awk ‘{print}’ | sort -n | uniq &gt; 1】、【ls &#x2F;proc | sort -n | uniq &gt; 2】和【diff 1 2】命令，可以查看隐藏进程。</p>
+<p>​	对于挖矿进程的排查，可使用【top】命令查看相关资源占用率较高的进程。之后进行定位。</p>
+<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7ov45xz000368vnennlaot2" data-title="Linux系统排查" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7ow9rng0003ocvne2hihzmp" data-title="Linux系统排查" class="article-share-link">Share</a>
       
       
       
