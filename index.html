@@ -101,7 +101,7 @@
 <p>​	在命令行中输入【cat &#x2F;proc&#x2F;version】命令，可查看当前操作系统版本信息。</p>
 <p>（3）模块信息</p>
 <p>​	在命令行中输入【lsmod】命令，可查看所有已载入系统的模块信息。</p>
-<h3 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h3><p>​	对于Windows系统中的恶意账户排查，主要有4种方法</p>
+<h3 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h3><p>​	对于Linux系统中的恶意账户排查，主要有4种方法</p>
 <p>（1）查看系统所有用户信息</p>
 <p>​	查看系统所有用户信息可以在命令行中输入【cat &#x2F;etc&#x2F;passwd】命令，后续各项由冒号隔开，分别表示“用户名”“密码加密”“用户ID”“用户组ID”“注释”“用户主目录”“默认登陆shell”。查询的用户信息中，最后显示“bin&#x2F;bash”的，表示账户状态为可登录；显示“sbin&#x2F;nologin”的，表示账户状态为不可登录。</p>
 <p>（2）分析超级权限账户</p>
@@ -133,11 +133,30 @@
 <p>​	也可以利用【lsof -p xxx】（xxx为进程的PID）命令，查看进程所打开的文件。</p>
 <p>​	有些攻击者会将进程隐藏，以躲避排查，因此查看隐藏进程同样重要。按顺序执行【ps -ef |awk ‘{print}’ | sort -n | uniq &gt; 1】、【ls &#x2F;proc | sort -n | uniq &gt; 2】和【diff 1 2】命令，可以查看隐藏进程。</p>
 <p>​	对于挖矿进程的排查，可使用【top】命令查看相关资源占用率较高的进程。之后进行定位。</p>
-<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1>
+<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1><p>​	在Linux中，在命令行中输入【chkconfig –list】命令，可以查看系统运行的服务。</p>
+<p>​	使用【service –status-all】命令，可查看所有服务的状态。</p>
+<h1 id="文件痕迹排查"><a href="#文件痕迹排查" class="headerlink" title="文件痕迹排查"></a>文件痕迹排查</h1><p>​	在Linux中，可以从以下几个方面对文件的痕迹进行排查。</p>
+<p>一、敏感目录</p>
+<p>​	Linux常见的敏感目录如下。</p>
+<p>（1）&#x2F;tmp目录和命令目录&#x2F;usr&#x2F;bin、&#x2F;usr&#x2F;sbin等经常作为恶意软件下载目录及相关文件被替换的目录。</p>
+<p>（2）~&#x2F;.ssh及&#x2F;etc&#x2F;ssh也经常作为一些后门配置的路径，需要重点排查。</p>
+<p>二、时间点查找</p>
+<p>（1）通过【find】命令，可以对文件时间进行查看，使用命令【find &#x2F; -ctime 0 -name “*.sh”】，可查找一天内新增的sh文件。</p>
+<p>​		在查看指定目录时，也可以对文件时间进行排序，使用命令【ls -alt | head -n 10】查看排序前10行内容。</p>
+<p>（2）对文件的创建时间、修改时间、访问时间进行排查</p>
+<p>​	使用【stat】命令可以详细查看文件的创建时间、修改时间、访问时间，若修改时间距离应急响应事件日期接近，有线性关联，说明可能被篡改。</p>
+<p>三、特殊文件</p>
+<p>​	Linux系统中的恶意文件存在特定的设置、特定的关键字信息等。可通过以下方式进行排查。</p>
+<p>（1）特殊权限文件查找。如使用命令【find &#x2F;tmp -perm 777】命令，查找tmp目录下权限为777的文件。</p>
+<p>（2）Webshell查找。可以从Webshell中常见的一些关键字开始查找，对文件进行初筛，缩小排查的范围，如使用命令【find &#x2F;var&#x2F;www&#x2F; -name “*.php”】查找“&#x2F;var&#x2F;www&#x2F;”目录下的所有php文件。除了初筛的方法，还可以使用findWebshell、Scan_Webshell.py等进行扫描排查。</p>
+<p>（3）对系统命令进行排查。【ls】和【ps】等命令很可能被攻击者恶意替换，所以可以使用【ls -alt &#x2F;bin】命令，查看命令目录中相关系统命令的修改事件，从而进行排查。也可以使用【ls -alh &#x2F;bin】命令查看相关文件的大小，若明显偏大，则文件很可能被替换。</p>
+<p>（4）Linux的后门检测，可以使用第三方查杀工具（如chkrootkit、rkhunter）进行查杀。</p>
+<p>（5）排查SUID程序，即对于一些设置了SUID权限的程序进行排查，可以使用【find &#x2F; -type f -perm -04000 -ls -uid 0 2&gt;&#x2F;dev&#x2F;null】命令。</p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7rqkuls0003sgvn2qlwd43w" data-title="Linux系统排查" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7rskbzd0003bwvnbvg4fqmz" data-title="Linux系统排查" class="article-share-link">Share</a>
       
       
       
@@ -223,11 +242,27 @@
 <p>​	在PowerShell中使用命令【Get-WmiObject Win32_Process | select Name,ProcessId,ParentProcessId,Path】命令查看进程名、父进程和对应的路径。</p>
 <p>（5）使用【wmic】命令进行查询</p>
 <p>​	在命令行中使用【wmic process】命令，可以对进程情况进行查询。</p>
-<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1>
+<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1><p>​	在Windows中，打开【运行】对话框，输入【services.msc】命令，可打开【服务】窗口，查看所有的服务项，包括服务的名称、描述、状态等。</p>
+<h1 id="文件痕迹排查"><a href="#文件痕迹排查" class="headerlink" title="文件痕迹排查"></a>文件痕迹排查</h1><p>​	在Window中，可以从以下几个方面对文件的痕迹进行排查。</p>
+<p>一、敏感目录</p>
+<p>​	在Windows中，恶意软件会在以下位置驻留。</p>
+<p>（1）各个盘下的temp相关目录。对敏感目录进行的检查，一般是查看临时目录下是否有异常文件。</p>
+<p>（2）对于一些人工入侵的应急响应事件，有时入侵者会下载一些后续攻击的工具，所以要重点排查浏览器的历史纪录、下载文件和cookie信息，查看是否有相关的恶意痕迹。</p>
+<p>（3）查看用户Recent文件。Recent文件主要存储了最近运行文件的快捷方式，可通过分析最近运行的文件，排查可疑文件。一般Recent文件路径为：C:\Documents and Settings\Administrator(系统用户名)\Recent 或 C:\Documents and Settings\Default User\Recent 。</p>
+<p>（4）查看预读取文件夹，在【运行】对话框中输入【%SystemRoot%\Prefetch\】命令，打开Prefetch文件夹，之后排查该文件夹下的文件。Amcache.hve文件也可以查询应用程序的执行路径、上次执行的时间及SHA1值，在【运行】对话框中输入【%SystemRoot%\appcompat\Programs\】命令，即可打开所在Amcache.hve文件夹。 </p>
+<p>二、时间点查找</p>
+<p>​	应急响应事件发生以后，需要先确认事件发生的时间点，然后排查时间点前后的文件变动情况，从而缩小排查的范围。</p>
+<p>（1）可列出攻击日期内新增的文件，从而发现相关的恶意软件。在命令行中输入【forfiles】命令，查找相应文件。</p>
+<p>​	使用【forfiles &#x2F;m *.exe &#x2F;d +2020&#x2F;2&#x2F;12 &#x2F;s &#x2F;p c:\ &#x2F;c “cmd &#x2F;c echo @path @fdate @ftime” 2&gt;null】命令就是对2020&#x2F;2&#x2F;12后的exe新建文件进行搜索。</p>
+<p>​	还可以根据文件列表的修改日期进行排序，查找可疑文件。当然也可以搜索指定日期范围内的文件夹及文件。</p>
+<p>（2）对文件的创建时间、修改时间、访问时间进行排查。对于人工入侵的应急响应事件，有时攻击者会为了掩饰其入侵行为，会对文档的相应时间进行修改，以规避一些排查策略。</p>
+<p>三、WebShell</p>
+<p>​	在应急响应过程中，网站是一个关键入侵点，对Webshell（网站入侵的脚本工具）的查找来进行排查。</p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" data-id="cl7rqkulu0004sgvn09lj6jqx" data-title="Windows系统排查" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" data-id="cl7rskbzj0007bwvn22jw8mev" data-title="Windows系统排查" class="article-share-link">Share</a>
       
       
       
@@ -278,7 +313,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/hello-world/" data-id="cl7rqkulj0001sgvndvijhkrl" data-title="Hello World" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/hello-world/" data-id="cl7rskbz70001bwvn5jhuegat" data-title="Hello World" class="article-share-link">Share</a>
       
       
       
@@ -320,7 +355,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2017/05/05/Untitled/" data-id="cl7rqkulc0000sgvn0zi8eiy6" data-title="测试" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2017/05/05/Untitled/" data-id="cl7rskbz00000bwvn3etbf3da" data-title="测试" class="article-share-link">Share</a>
       
       
       

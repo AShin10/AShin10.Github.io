@@ -14,7 +14,7 @@
 <meta property="og:description" content="系统排查一、系统信息工具​	在命令行中输入【msinfo32】命令，打开【系统信息窗口】，可以显示对本地计算机的硬件资源、组件和软件环境的信息，对正在运行的任务、服务、系统驱动程序、加载的模块、启动程序等进行排查。 （1）正在运行任务 ​	在【系统信息窗口中】，单击【软件环境】中的【正在运行任务】选项，可查看正在运行任务的名称、路径、进程ID等详细信息。 （2）服务 ​	在【系统信息窗口中】，单击">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-09-03T14:27:47.735Z">
-<meta property="article:modified_time" content="2022-09-05T15:04:34.392Z">
+<meta property="article:modified_time" content="2022-09-07T15:22:25.545Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -147,11 +147,27 @@
 <p>​	在PowerShell中使用命令【Get-WmiObject Win32_Process | select Name,ProcessId,ParentProcessId,Path】命令查看进程名、父进程和对应的路径。</p>
 <p>（5）使用【wmic】命令进行查询</p>
 <p>​	在命令行中使用【wmic process】命令，可以对进程情况进行查询。</p>
-<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1>
+<h1 id="服务排查"><a href="#服务排查" class="headerlink" title="服务排查"></a>服务排查</h1><p>​	在Windows中，打开【运行】对话框，输入【services.msc】命令，可打开【服务】窗口，查看所有的服务项，包括服务的名称、描述、状态等。</p>
+<h1 id="文件痕迹排查"><a href="#文件痕迹排查" class="headerlink" title="文件痕迹排查"></a>文件痕迹排查</h1><p>​	在Window中，可以从以下几个方面对文件的痕迹进行排查。</p>
+<p>一、敏感目录</p>
+<p>​	在Windows中，恶意软件会在以下位置驻留。</p>
+<p>（1）各个盘下的temp相关目录。对敏感目录进行的检查，一般是查看临时目录下是否有异常文件。</p>
+<p>（2）对于一些人工入侵的应急响应事件，有时入侵者会下载一些后续攻击的工具，所以要重点排查浏览器的历史纪录、下载文件和cookie信息，查看是否有相关的恶意痕迹。</p>
+<p>（3）查看用户Recent文件。Recent文件主要存储了最近运行文件的快捷方式，可通过分析最近运行的文件，排查可疑文件。一般Recent文件路径为：C:\Documents and Settings\Administrator(系统用户名)\Recent 或 C:\Documents and Settings\Default User\Recent 。</p>
+<p>（4）查看预读取文件夹，在【运行】对话框中输入【%SystemRoot%\Prefetch\】命令，打开Prefetch文件夹，之后排查该文件夹下的文件。Amcache.hve文件也可以查询应用程序的执行路径、上次执行的时间及SHA1值，在【运行】对话框中输入【%SystemRoot%\appcompat\Programs\】命令，即可打开所在Amcache.hve文件夹。 </p>
+<p>二、时间点查找</p>
+<p>​	应急响应事件发生以后，需要先确认事件发生的时间点，然后排查时间点前后的文件变动情况，从而缩小排查的范围。</p>
+<p>（1）可列出攻击日期内新增的文件，从而发现相关的恶意软件。在命令行中输入【forfiles】命令，查找相应文件。</p>
+<p>​	使用【forfiles &#x2F;m *.exe &#x2F;d +2020&#x2F;2&#x2F;12 &#x2F;s &#x2F;p c:\ &#x2F;c “cmd &#x2F;c echo @path @fdate @ftime” 2&gt;null】命令就是对2020&#x2F;2&#x2F;12后的exe新建文件进行搜索。</p>
+<p>​	还可以根据文件列表的修改日期进行排序，查找可疑文件。当然也可以搜索指定日期范围内的文件夹及文件。</p>
+<p>（2）对文件的创建时间、修改时间、访问时间进行排查。对于人工入侵的应急响应事件，有时攻击者会为了掩饰其入侵行为，会对文档的相应时间进行修改，以规避一些排查策略。</p>
+<p>三、WebShell</p>
+<p>​	在应急响应过程中，网站是一个关键入侵点，对Webshell（网站入侵的脚本工具）的查找来进行排查。</p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" data-id="cl7rqkulu0004sgvn09lj6jqx" data-title="Windows系统排查" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Windows%E6%8E%92%E6%9F%A5/" data-id="cl7rskbzj0007bwvn22jw8mev" data-title="Windows系统排查" class="article-share-link">Share</a>
       
       
       
