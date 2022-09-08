@@ -14,7 +14,7 @@
 <meta property="og:description" content="系统排查​	对于Linux系统的主机排查，可以使用相关命令查看CPU信息、操作系统信息及模块信息等，初步了解主机情况。 （1）CPU信息 ​	在命令行中输入【lscpu】命令，可查看CPU相关信息，包括型号、主频、内核等信息。 （2）操作系统信息 ​	在命令行中输入【uname -a】命令，可查看当前操作系统信息。 ​	在命令行中输入【cat &#x2F;proc&#x2F;version】命令，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-09-03T15:11:50.996Z">
-<meta property="article:modified_time" content="2022-09-07T15:43:05.200Z">
+<meta property="article:modified_time" content="2022-09-08T15:27:12.219Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -154,11 +154,52 @@
 <p>（3）对系统命令进行排查。【ls】和【ps】等命令很可能被攻击者恶意替换，所以可以使用【ls -alt &#x2F;bin】命令，查看命令目录中相关系统命令的修改事件，从而进行排查。也可以使用【ls -alh &#x2F;bin】命令查看相关文件的大小，若明显偏大，则文件很可能被替换。</p>
 <p>（4）Linux的后门检测，可以使用第三方查杀工具（如chkrootkit、rkhunter）进行查杀。</p>
 <p>（5）排查SUID程序，即对于一些设置了SUID权限的程序进行排查，可以使用【find &#x2F; -type f -perm -04000 -ls -uid 0 2&gt;&#x2F;dev&#x2F;null】命令。</p>
+<h1 id="日志分析"><a href="#日志分析" class="headerlink" title="日志分析"></a>日志分析</h1><p>（1）日志概述</p>
+<p>​	Linux系统中的日志一般存放在目录”&#x2F;var&#x2F;log”下，具体的日志功能如下。</p>
+<p>&#x2F;var&#x2F;log&#x2F;cron    计划任务日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;dmesg    系统引导日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;mailog    邮件系统日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;lastlog     最后一次用户成功登陆的时间、登陆IP等信息</p>
+<p>&#x2F;var&#x2F;log&#x2F;boot.log    系统在引导过程中发生的事件，就是Linux系统开机自检过程显示的信息</p>
+<p>&#x2F;var&#x2F;log&#x2F;messages     Linux操作系统常见的系统和服务错误信息，内核及公共消息日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;secure     Linux系统安全日志，记录用户和工作组变坏情况、用户登陆认证情况</p>
+<p>&#x2F;var&#x2F;log&#x2F;syslog    只记录警告信息，常常是系统出问题的信息，使用lastlog查看</p>
+<p>&#x2F;var&#x2F;log&#x2F;btmp     记录Linux登陆失败的用户、时间以及远程IP地址，与访问限制相关日志。由lastb命令查看</p>
+<p>&#x2F;var&#x2F;log&#x2F;wtmp    该日志文件永久记录每个用户登录、注销及开关机的事件，使用last命令查看</p>
+<p>&#x2F;var&#x2F;run&#x2F;utmp    记录当前系统正在登录的信息。如 who、w、users、finger等就需要访问这个文件</p>
+<p>&#x2F;var&#x2F;log&#x2F;auth.log  记录系统授权信息，包括用户登录和使用的权限机制等</p>
+<p>&#x2F;var&#x2F;log&#x2F;apache2&#x2F;access.log  记录Apache的访问日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;userlog  记录所有等级用户信息的日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;xferlog(vsftpd.log)  记录Linux FTP日志</p>
+<p>&#x2F;var&#x2F;log&#x2F;faillog  记录登录系统不成功的账号信息</p>
+<p>​	使用【cat &#x2F;var&#x2F;log&#x2F;cron】命令，可查看任务计划相关的操作日志。</p>
+<p>​	使用【cat &#x2F;var&#x2F;log&#x2F;messages 】命令，可查看任务计划相关的操作日志整体系统信息，其中也记录了某个用户切换到root权限的日志。</p>
+<p>​	使用【cat &#x2F;var&#x2F;log&#x2F;secure】命令，可查看验证和授权方面的信息，如sshd会将所有信息记录在这里。</p>
+<p>​	使用【ls -alt &#x2F;var&#x2F;spool&#x2F;mail】命令，可查看邮件相关日志记录文件。</p>
+<p>​	使用【cat &#x2F;var&#x2F;spool&#x2F;mail&#x2F;root】命令，可发现针对80端口的攻击行为。</p>
+<p>（2）日志分析</p>
+<p>​	对于Linux系统日志的分析主要使用【grep】、【sed】、【sort】和【awk】等命令，常用查询日志命令及功能如下。</p>
+<p>【tail -n 10 test.log】命令：查询最后10行的日志</p>
+<p>【tail -n +10 test.log】命令：查询10行之后的所有日志</p>
+<p>【head -n 10 test.log】命令：查询头10行的日志</p>
+<p>【head -n -是、10 test.log】命令：查询除了最后10行的其他所有日志</p>
+<p>在*.log日志文件中统计独立IP地址个数的命令如下：</p>
+<p>【awk ‘{print $1}’ test.log | sort | uniq | wc -l】</p>
+<p>【awk ‘{print $1}’ &#x2F;access.log | sort | uniq -c | sort -nr | head -10】</p>
+<p>查找指定时间段日志的命令如下：</p>
+<p>【sed -n ‘&#x2F;2014-12-17 16:17:20&#x2F;,&#x2F;2014-12-17 16:17:36&#x2F;p’ test.log】</p>
+<p>【grep ‘2014-12-17 16:17:20’ test.log】</p>
+<p>定位有多少IP地址在暴力破解主机root账号的命令如下：</p>
+<p>【cat &#x2F;var&#x2F;log&#x2F;secure |awk ‘&#x2F;Accepted&#x2F;{print $(NF-3)}’ | sort | uniq -c | awk ‘{print $2”&#x3D;”$1;}’ (CentOS)】</p>
+<p>查看登录成功的IP地址的命令如下：</p>
+<p>【cat &#x2F;var&#x2F;log&#x2F;auth.log | awk ‘Failed&#x2F;{print $(NF-3)}’ | sort | uniq -c | awk ‘{print $2”&#x3D;”$1;}’(ubuntu)】</p>
+<p>查看登录成功日期、用户名、IP地址的命令如下：</p>
+<p>【grep “Accepted” &#x2F;var&#x2F;log&#x2F;secure | awk ‘{print $1,$2,$3,$9,}’】</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7t619ps00033kvnamhfcfyf" data-title="Linux系统排查" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/09/03/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/Linux%E6%8E%92%E6%9F%A5/" data-id="cl7t7golv00038gvndcst5k86" data-title="Linux系统排查" class="article-share-link">Share</a>
       
       
       
